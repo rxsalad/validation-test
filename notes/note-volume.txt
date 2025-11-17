@@ -1,0 +1,21 @@
+########## Check disks
+
+df -h, check disk usage
+du -sh *, check folder size
+
+########## Check block devices
+
+lsblk, list all block devices
+lsblk -f
+
+########## Partition & Format
+
+fdisk /dev/sda 
+n - new partition
+p - primary
+1 - number 1
+first to laster
+w - write
+
+mkfs.ext4 /dev/sda1 # format
+

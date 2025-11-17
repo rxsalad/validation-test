@@ -1,0 +1,55 @@
+kubectl apply -f doks-deploy.yaml
+kubectl describe pod vllm-server-64c7b8c5fd-4b8wd
+kubectl exec -it vllm-server-64c7b8c5fd-4b8wd -- /bin/bash
+
+cat /root/.config/rclone/rclone.conf
+rclone cat ds:rs-validation-test/test.txt
+
+
+########## Build & Push - Docker Hub
+
+docker image build -t docker.io/richardxgf/amd:rocm7-vllm-001 -f Dockerfile . 
+docker push docker.io/richardxgf/amd:rocm7-vllm-001
+
+########## Build & Push - DOCR
+
+docker image build -t registry.digitalocean.com/rs-validation-test/amd:rocm6-vllm-001 -f Dockerfile.rocm6 . 
+docker push registry.digitalocean.com/rs-validation-test/amd:rocm6-vllm-001
+
+########## Local Test
+
+docker run -it --rm \
+  -v $VOLUME:$VOLUME \
+  -p 8000:8000 \
+  -e HF_TOKEN=$TOKEN \
+  -e MODEL=$MODEL \
+  -e HIP_VISIBLE_DEVICES=0 \
+  --ipc=host \
+  --shm-size=64g \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --security-opt seccomp=unconfined \
+  registry.digitalocean.com/rs-validation-test/amd:vllm-001 \
+  /bin/bash
+
+########## Local Run
+
+docker run -it --rm \
+  -v $VOLUME:$VOLUME \
+  -p 8000:8000 \
+  -e HF_TOKEN=$TOKEN \
+  -e MODEL=$MODEL \
+  -e HIP_VISIBLE_DEVICES=0 \
+  --ipc=host \
+  --shm-size=64g \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --security-opt seccomp=unconfined \
+  rocm/vllm:latest \
+  vllm serve $MODEL
+
+curl http://localhost:8000/v1/chat/completions   -H "Content-Type: application/json"   -d '{
+    "model": "meta-llama/Llama-3.2-1B-Instruct",
+    "messages": [{"role": "user", "content": "who are you?"}]
+  }'
+

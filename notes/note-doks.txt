@@ -1,0 +1,25 @@
+
+
+
+
+
+
+
+########## Secret
+
+kubectl get secret
+kubectl describe secret rs-regcred
+kubectl describe secret rs-environment-variables
+
+########## Environment 
+
+kubectl apply -f doks-credentials.yaml
+
+
+########## Container Registry 
+
+kubectl create secret docker-registry rs-regcred \
+  --docker-server=registry.digitalocean.com \
+  --docker-username="<registered-email>" \
+  --docker-password="<paste-api-token>" \
+  --docker-email="<registered-email>"

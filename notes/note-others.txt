@@ -1,0 +1,9 @@
+########## Git Commit
+
+git config --global user.name XX
+git config --global user.email XX
+
+########## Mac OS
+
+Debug: fn + F5,
+Run:   fn + control + f5

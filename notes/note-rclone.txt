@@ -1,0 +1,33 @@
+########## Usage
+
+rclone ls ds:rs-validation-test
+rclone lsf ds:rs-validation-test
+
+rclone copyto ./test.txt ds:rs-validation-test/test.txt
+rclone cat ds:rs-validation-test/test.txt
+
+
+rclone copyto ds:rs-validation-test/test.txt ./test1.txt
+rclone copyto ./test1.txt ds:rs-validation-test/test1.txt
+
+rclone deletefile ds:rs-validation-test/test1.txt
+
+
+rclone copy ./llama_raw ds:rs-validation-test/test20251114/llama_raw --progress
+rclone copy ./llama_final ds:rs-validation-test/test20251114/llama_final --progress
+rclone copyto ./all-nodes.txt ds:rs-validation-test/test20251114/all-nodes.txt
+rclone copyto ./convert.py ds:rs-validation-test/test20251114/convert.py
+rclone copyto ./converting.py ds:rs-validation-test/test20251114/converting.py
+
+rclone ls ds:rs-validation-test/test20251114/llama_final
+
+
+
+########## Install
+https://rclone.org/downloads/
+
+curl -Lk 'https://downloads.rclone.org/v1.71.2/rclone-v1.71.2-linux-amd64.deb' -o rclone-v1.71.2-linux-amd64.deb && \
+    dpkg -i rclone-v1.71.2-linux-amd64.deb && \
+    rm rclone-v1.71.2-linux-amd64.deb && \
+    mkdir -p /root/.config/rclone
+

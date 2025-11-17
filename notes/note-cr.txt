@@ -1,0 +1,29 @@
+########## Usage
+
+docker pull rocm/vllm:rocm7.0.0_vllm_0.11.1_20251103
+docker tag rocm/vllm:rocm7.0.0_vllm_0.11.1_20251103 registry.digitalocean.com/rs-validation-test/vllm:rocm7.0.0_vllm_0.11.1_20251103
+docker push registry.digitalocean.com/rs-validation-test/vllm:rocm7.0.0_vllm_0.11.1_20251103
+
+docker pull rocm/vllm:rocm6.4.1_vllm_0.10.1_20250909 
+docker tag rocm/vllm:rocm6.4.1_vllm_0.10.1_20250909 registry.digitalocean.com/rs-validation-test/vllm:rocm6.4.1_vllm_0.10.1_20250909
+docker push registry.digitalocean.com/rs-validation-test/vllm:rocm6.4.1_vllm_0.10.1_20250909
+
+########## Setup - DOCR 
+https://docs.digitalocean.com/products/container-registry/details/limits/
+
+mkdir -p /root/.docker
+sudo snap connect doctl:dot-docker
+
+doctl registry login
+
+doctl registries list
+
+########## Setup - Docker Hub
+
+Log in to Docker Hub using a web browser.
+
+docker login -> Input the code in the browser.
+
+########## credentials for multiple hubs
+
+~/.docker/config.json

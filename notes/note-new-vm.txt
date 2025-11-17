@@ -1,0 +1,79 @@
+########## Resource
+
+
+Volumes: rs-validation-test
+
+Backup & Snapshots - Volumes: rs-validation-test
+
+Spaces: rs-validation-test
+
+Container Registry: rs-validation-test
+
+
+########## New Droplet 
+
+Region: Atlanta
+VPC: alt1-vpc-rs
+Image: AI/ML Ready, GPU
+Attach Existing Volume
+Add an SSH Key - RS
+Droplet Name
+Selelct a Project
+Tag: rs-test
+
+########## Mount
+
+mkdir data 
+mount /dev/sda1 /root/data
+
+########## Auto-Mount
+
+blkid /dev/sda1 # Get UUID
+
+nano /etc/fstab # Add
+UUID=<ID> /root/data  ext4  defaults  0  2
+
+mount -a # mount all in the /etc/fstab
+
+########## VSCode - Open 
+
+/root/data
+
+Extension: python
+
+########## Install: basic
+
+apt update
+apt install tree
+apt install net-tools
+
+########## Install: helm
+https://helm.sh/docs/intro/install/
+
+sudo snap install helm --classic
+
+########## Install: doctl
+https://docs.digitalocean.com/reference/doctl/how-to/install/
+
+sudo snap install doctl
+
+mkdir -p /root/.config
+doctl auth init
+
+########## Install: kubectl 
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+curl -LO https://dl.k8s.io/release/v1.34.0/bin/linux/amd64/kubectl
+chmod +x kubectl
+mv kubectl /usr/local/bin/
+
+mkdir -p /root/.kube
+snap connect doctl:kube-config # Allow doctl to access /root/.kube/config, the kube-config is the interface name
+
+########## Install: rclone
+
+########## Install: docker-amd
+
+########## Install: Python
+
+pip install python-dotenv  --break-system-packages
