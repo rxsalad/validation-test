@@ -1,0 +1,64 @@
+kubectl apply -f doks-credentials.yaml # Access to the bucket and Hugging Face
+kubectl apply -f doks-deploy.yaml      # Test workload
+
+########## Rclone
+
+cat /root/.config/rclone/rclone.conf
+
+rclone cat ds:rs-validation-test/test.txt
+rclone cat ds:rs-validation-test/test20251117/test001/rs-cai-gpu-pool-sneqi.log
+rclone cat ds:rs-validation-test/test20251117/llama/amd-nyc2-test-gpu-pool-s78wr.log
+
+rclone ls ds:rs-validation-test/test20251117/llama
+rclone lsf ds:rs-validation-test
+
+rclone copyto ./test.txt ds:rs-validation-test/test.txt
+rclone copyto ./all-nodes.txt ds:rs-validation-test/test20251117/all-nodes.txt
+
+rclone copy ds:rs-validation-test/test20251117/llama ./llama 
+rclone copy ./final ds:rs-validation-test/test20251117/final  
+
+########## Build & Push - Docker Hub
+
+docker image build -t docker.io/richardxgf/amd:rocm7-vllm-space-001 -f Dockerfile . 
+docker push docker.io/richardxgf/amd:rocm7-vllm-space-001 
+
+########## Inference Test
+
+curl http://localhost:8000/v1/chat/completions   -H "Content-Type: application/json"   -d '{
+    "model": "meta-llama/Llama-3.2-1B-Instruct",
+    "messages": [{"role": "user", "content": "who are you?"}]
+  }'
+
+########## Local Test
+
+docker run -it --rm \
+  -v $VOLUME:$VOLUME \
+  -p 8000:8000 \
+  -e HF_TOKEN=$TOKEN \
+  -e MODEL=$MODEL \
+  -e HIP_VISIBLE_DEVICES=0 \
+  --ipc=host \
+  --shm-size=64g \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --security-opt seccomp=unconfined \
+  registry.digitalocean.com/rs-validation-test/amd:vllm-001 \
+  /bin/bash
+
+########## Local Run
+
+docker run -it --rm \
+  -v $VOLUME:$VOLUME \
+  -p 8000:8000 \
+  -e HF_TOKEN=$TOKEN \
+  -e MODEL=$MODEL \
+  -e HIP_VISIBLE_DEVICES=0 \
+  --ipc=host \
+  --shm-size=64g \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --security-opt seccomp=unconfined \
+  rocm/vllm:latest \
+  vllm serve $MODEL
+

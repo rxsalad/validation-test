@@ -28,4 +28,4 @@ RUN chmod +x /app/start.sh
 
 CMD ["sh","-c","/app/start.sh"]
 
-# Image: docker.io/richardxgf/amd:rocm7-vllm-001
+# Image: docker.io/richardxgf/amd:rocm7-vllm-space-001

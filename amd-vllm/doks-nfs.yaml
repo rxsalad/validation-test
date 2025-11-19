@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: do-nfs-pv-rw            # Unique name for your PV
+  labels:
+    type: nfs-model-share-rw    # Optional: lets PVCs select this PV by label
+spec:
+  capacity:
+    storage: 10Gi               # Scheduler hint only (NFS won’t enforce quota)
+  accessModes:
+    - ReadWriteMany                      # NFS supports multi-node read/write
+  persistentVolumeReclaimPolicy: Retain  # Safer: PVC delete won’t remove data
+  storageClassName: ""                   # Static PV (no dynamic provisioner)
+  nfs:
+    server: <NFS_SERVER_IP>         # Replace with the NFS Server IP   
+    path: /<TEAM_ID>/<EXPORT_PATH>  # Replace with your NFS path displayed in the NFS UX
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: do-nfs-pvc-rw
+spec:
+  storageClassName: ""           # Required: disables dynamic provisioning
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi              # ≤ PV size; not enforced for NFS
+  volumeName: do-nfs-pv-rw       # Bind directly to this PV
+  # selector:                    # ← Optional: uncomment to match by label instead
+  #   matchLabels:
+  #     type: nfs-model-share-rw

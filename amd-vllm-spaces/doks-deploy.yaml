@@ -7,7 +7,7 @@ metadata:
   name: vllm-server
   namespace: default
 spec:
-  replicas: 1 # to 128
+  replicas: 84 # to 128
   selector:
     matchLabels:
       app: vllm-server
@@ -27,46 +27,46 @@ spec:
       #  - name: rs-regcred
       containers:
       - name: vllm-container
-        #image: registry.digitalocean.com/rs-validation-test/amd:vllm-001 # ROCm 6, not for MI350X
-        #image: docker.io/rocm/vllm:rocm7.0.0_vllm_0.11.1_20251103 # ROCm 7 for MI350X
-        image: docker.io/richardxgf/amd:rocm7-vllm-001 # ROCm 7 for MI350X
+        image: docker.io/richardxgf/amd:rocm7-vllm-space-001 # ROCm 7 for MI350X
         #imagePullPolicy: Always
         #command: ["sh","-c","sleep infinity"]
         ports:
         - containerPort: 8000
         env:
+        - name: BUCKET
+          value: "rs-validation-test"   # BUCKET   
         - name: FOLDER
-          value: "test"
+          value: "test20251117/llama"   # PREFIX
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
         - name: MODEL
-          value: meta-llama/Llama-3.2-1B-Instruct
+          value: meta-llama/Llama-3.1-8B-Instruct
           # valueFrom:
           #   secretKeyRef:
           #     name: rs-environment-variables
           #     key: MODEL
-        #- name: AWS_ACCESS_KEY_ID
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: rs-environment-variables
-        #      key: AWS_ACCESS_KEY_ID
-        #- name: AWS_SECRET_ACCESS_KEY
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: rs-environment-variables
-        #      key: AWS_SECRET_ACCESS_KEY
-        #- name: AWS_ENDPOINT_URL
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: rs-environment-variables
-        #      key: AWS_ENDPOINT_URL
-        #- name: AWS_REGION
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: rs-environment-variables
-        #      key: AWS_REGION              
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: rs-environment-variables
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: rs-environment-variables
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_ENDPOINT_URL
+          valueFrom:
+            secretKeyRef:
+              name: rs-environment-variables
+              key: AWS_ENDPOINT_URL
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: rs-environment-variables
+              key: AWS_REGION              
         - name: HF_TOKEN
           valueFrom:
             secretKeyRef:
@@ -78,10 +78,6 @@ spec:
         volumeMounts:
         - name: temp-hf-cache
           mountPath: /root/.cache/huggingface
-        - name: temp-nfs-storage
-          # mountPath: /result
-          mountPath: /huggingface/cache/hub
-          readOnly: false
         - name: shm
           mountPath: /dev/shm
         - name: dev-kfd
@@ -102,9 +98,6 @@ spec:
         hostPath:
           path: /root/.cache/huggingface
           type: DirectoryOrCreate
-      - name: temp-nfs-storage
-        persistentVolumeClaim:
-          claimName: do-nfs-pvc-rw
       - name: shm
         emptyDir:
           medium: Memory
