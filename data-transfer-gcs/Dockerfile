@@ -1,0 +1,31 @@
+# ROCm 7 for MI350X and MI325X, too large for DOCR
+FROM docker.io/rocm/vllm:rocm7.0.0_vllm_0.11.1_20251103
+# FROM docker.io/rocm/vllm:rocm7.0.0_vllm_0.10.2_20251006
+
+# Install essential utilities
+RUN apt-get update && apt-get install -y curl net-tools iputils-ping nano tree
+
+# Optional: Install VS Code Server
+RUN curl -Lk 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64' -o vscode_cli.tar.gz && \
+    tar -xf vscode_cli.tar.gz && \
+    mv code /usr/local/bin/code && \
+    rm vscode_cli.tar.gz
+
+# Install rclone and prepare config directory
+# https://rclone.org/downloads/
+RUN curl -Lk 'https://downloads.rclone.org/v1.71.2/rclone-v1.71.2-linux-amd64.deb' -o rclone-v1.71.2-linux-amd64.deb && \
+    dpkg -i rclone-v1.71.2-linux-amd64.deb && \
+    rm rclone-v1.71.2-linux-amd64.deb && \
+    mkdir -p /root/.config/rclone
+
+RUN pip install --upgrade pip
+RUN pip install python-dotenv 
+    
+WORKDIR /app
+
+COPY start.sh test.py helper.py test.txt testcases.txt /app/
+RUN chmod +x /app/start.sh
+
+CMD ["sh","-c","/app/start.sh"]
+
+# Image: docker.io/richardxgf/amd:rocm7-rclone-gcs-001
